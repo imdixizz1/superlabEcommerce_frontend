@@ -1,0 +1,50 @@
+/* Shimmer effect animation */
+.shimmer-effect {
+    animation: shimmer 1.5s infinite linear;
+    background-size: 400% 100%;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 100% 0;
+    }
+    100% {
+        background-position: -100% 0;
+    }
+}
+
+/* Custom swiper styling */
+.product-swiper .swiper-button-next,
+.product-swiper .swiper-button-prev {
+    color: #2563eb;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+
+.product-swiper .swiper-button-next:after,
+.product-swiper .swiper-button-prev:after {
+    font-size: 18px;
+}
+
+.product-swiper .swiper-button-next:hover,
+.product-swiper .swiper-button-prev:hover {
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom pagination styling */
+.custom-pagination .ant-pagination-item {
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.custom-pagination .ant-pagination-item-active {
+    background: linear-gradient(to right, #2563eb, #7c3aed);
+    border-color: transparent;
+}
+
+.custom-pagination .ant-pagination-item-active a {
+    color: white;
+}
