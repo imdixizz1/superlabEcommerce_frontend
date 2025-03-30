@@ -278,18 +278,6 @@ export default function Home() {
                                                 }
                                                 className="w-1/3 relative"
                                             >
-                                                {/* Product badges for mobile */}
-                                                <div className="absolute top-1 left-1 z-10">
-                                                    {product.isBestSeller && (
-                                                        <Tag
-                                                            color="#faad14"
-                                                            className="m-0 text-xs px-1 py-0"
-                                                        >
-                                                            Best Seller
-                                                        </Tag>
-                                                    )}
-                                                </div>
-
                                                 {/* Out of stock overlay */}
                                                 {product.stock === 0 && (
                                                     <div className="absolute top-0 bottom-0 left-0 right-0 bg-black/40 flex items-center justify-center z-10">
