@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "@/redux/slices/productSlice";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination as AntPagination, Modal } from "antd";
+import { Pagination as AntPagination, Modal, Tag, Tooltip } from "antd";
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
@@ -46,6 +46,58 @@ export default function Home() {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setSelectedProduct(null);
+    };
+
+    // Calculate discount percentage
+    const calculateDiscount = (mrp, specialPrice) => {
+        if (!mrp || !specialPrice || mrp <= specialPrice) return null;
+        return Math.round(((mrp - specialPrice) / mrp) * 100);
+    };
+
+    // Render product badges (trending, best seller, etc.)
+    const renderProductBadges = (product) => {
+        return (
+            <div className="absolute top-2 left-2 flex flex-col gap-1">
+                {product.isTrending && (
+                    <Tag color="#ff4d4f" className="m-0 font-medium">
+                        Trending
+                    </Tag>
+                )}
+                {product.isBestSeller && (
+                    <Tag color="#faad14" className="m-0 font-medium">
+                        Best Seller
+                    </Tag>
+                )}
+                {product.isJustLaunched && (
+                    <Tag color="#52c41a" className="m-0 font-medium">
+                        New Launch
+                    </Tag>
+                )}
+                {calculateDiscount(product.mrp, product.specialPrice) && (
+                    <Tag color="#1890ff" className="m-0 font-medium">
+                        {calculateDiscount(product.mrp, product.specialPrice)}%
+                        OFF
+                    </Tag>
+                )}
+            </div>
+        );
+    };
+
+    // Render product attributes
+    const renderAttributes = (product) => {
+        if (!product.attributes || product.attributes.length === 0) return null;
+
+        return (
+            <div className="flex flex-wrap gap-1 mt-1">
+                {product.attributes.map((attr) => (
+                    <Tooltip key={attr._id} title={attr.name}>
+                        <Tag className="m-0 text-xs" color="blue">
+                            {attr.value[0]}
+                        </Tag>
+                    </Tooltip>
+                ))}
+            </div>
+        );
     };
 
     return (
@@ -90,6 +142,18 @@ export default function Home() {
                                     <SwiperSlide key={product._id}>
                                         <div className="p-4 bg-white rounded-lg shadow-md border border-gray-100 hover:shadow-xl transition-shadow duration-300 h-full flex flex-col">
                                             <div className="relative overflow-hidden rounded-md group">
+                                                {/* Product badges */}
+                                                {renderProductBadges(product)}
+
+                                                {/* Stock badge */}
+                                                {product.stock === 0 && (
+                                                    <div className="absolute top-0 bottom-0 left-0 right-0 bg-black/40 flex items-center justify-center">
+                                                        <span className="px-3 py-2 bg-red-600 text-white rounded-md font-bold">
+                                                            Out of Stock
+                                                        </span>
+                                                    </div>
+                                                )}
+
                                                 <img
                                                     src={`${product.frontImage.replace(
                                                         "\\",
@@ -112,6 +176,13 @@ export default function Home() {
                                                 </div>
                                             </div>
                                             <div className="mt-4 flex-1 flex flex-col">
+                                                {/* Brand name */}
+                                                {product.brand && (
+                                                    <span className="text-xs font-medium text-blue-600 mb-1">
+                                                        {product.brand}
+                                                    </span>
+                                                )}
+
                                                 <h3
                                                     onClick={() =>
                                                         handleQuickView(product)
@@ -120,33 +191,67 @@ export default function Home() {
                                                 >
                                                     {product.name}
                                                 </h3>
-                                                <div className="mt-auto pt-2 flex items-center justify-between">
-                                                    <p className="font-bold text-lg">
-                                                        $
-                                                        {product.specialPrice ||
-                                                            product.price}
-                                                        {product.specialPrice && (
-                                                            <span className="text-sm text-gray-500 line-through ml-2">
-                                                                ${product.price}
-                                                            </span>
-                                                        )}
-                                                    </p>
-                                                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 cursor-pointer transition-colors">
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            className="h-5 w-5"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            stroke="currentColor"
-                                                        >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M12 4v16m8-8H4"
-                                                            />
-                                                        </svg>
+
+                                                {/* Render attributes */}
+                                                {renderAttributes(product)}
+
+                                                {/* Category */}
+                                                {product.category && (
+                                                    <div className="mt-1">
+                                                        <span className="text-xs text-gray-500">
+                                                            {
+                                                                product.category
+                                                                    .name
+                                                            }
+                                                        </span>
                                                     </div>
+                                                )}
+
+                                                <div className="mt-auto pt-2 flex items-center justify-between">
+                                                    {product.stock > 0 ? (
+                                                        <p className="font-bold text-lg">
+                                                            $
+                                                            {product.specialPrice ||
+                                                                product.price}
+                                                            {product.mrp &&
+                                                                product.specialPrice &&
+                                                                product.mrp >
+                                                                    product.specialPrice && (
+                                                                    <span className="text-sm text-gray-500 line-through ml-2">
+                                                                        $
+                                                                        {
+                                                                            product.mrp
+                                                                        }
+                                                                    </span>
+                                                                )}
+                                                        </p>
+                                                    ) : (
+                                                        <p className="text-gray-500 font-medium">
+                                                            Currently
+                                                            Unavailable
+                                                        </p>
+                                                    )}
+
+                                                    {product.stock > 0 && (
+                                                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 cursor-pointer transition-colors">
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                className="h-5 w-5"
+                                                                fill="none"
+                                                                viewBox="0 0 24 24"
+                                                                stroke="currentColor"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth={
+                                                                        2
+                                                                    }
+                                                                    d="M12 4v16m8-8H4"
+                                                                />
+                                                            </svg>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -173,6 +278,27 @@ export default function Home() {
                                                 }
                                                 className="w-1/3 relative"
                                             >
+                                                {/* Product badges for mobile */}
+                                                <div className="absolute top-1 left-1 z-10">
+                                                    {product.isBestSeller && (
+                                                        <Tag
+                                                            color="#faad14"
+                                                            className="m-0 text-xs px-1 py-0"
+                                                        >
+                                                            Best Seller
+                                                        </Tag>
+                                                    )}
+                                                </div>
+
+                                                {/* Out of stock overlay */}
+                                                {product.stock === 0 && (
+                                                    <div className="absolute top-0 bottom-0 left-0 right-0 bg-black/40 flex items-center justify-center z-10">
+                                                        <span className="px-2 py-1 bg-red-600 text-white text-xs rounded-md font-bold">
+                                                            Out of Stock
+                                                        </span>
+                                                    </div>
+                                                )}
+
                                                 <img
                                                     src={`${product.frontImage.replace(
                                                         "\\",
@@ -181,13 +307,27 @@ export default function Home() {
                                                     alt={product.name}
                                                     className="w-full h-28 object-cover"
                                                 />
-                                                {product.specialPrice && (
-                                                    <div className="absolute top-0 left-0 bg-red-500 text-white text-xs px-2 py-1 rounded-br-md">
-                                                        SALE
-                                                    </div>
-                                                )}
+                                                {product.specialPrice &&
+                                                    product.mrp &&
+                                                    product.mrp >
+                                                        product.specialPrice && (
+                                                        <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs px-2 py-1 rounded-bl-md">
+                                                            {calculateDiscount(
+                                                                product.mrp,
+                                                                product.specialPrice
+                                                            )}
+                                                            % OFF
+                                                        </div>
+                                                    )}
                                             </div>
                                             <div className="w-2/3 p-3 flex flex-col">
+                                                {/* Brand name */}
+                                                {product.brand && (
+                                                    <span className="text-xs font-medium text-blue-600">
+                                                        {product.brand}
+                                                    </span>
+                                                )}
+
                                                 <h3
                                                     onClick={() =>
                                                         handleQuickView(product)
@@ -196,21 +336,71 @@ export default function Home() {
                                                 >
                                                     {product.name}
                                                 </h3>
-                                                <div className="flex items-center mt-1">
-                                                    <p className="font-bold text-lg">
-                                                        $
-                                                        {product.specialPrice ||
-                                                            product.price}
-                                                    </p>
-                                                    {product.specialPrice && (
-                                                        <span className="text-sm text-gray-500 line-through ml-2">
-                                                            ${product.price}
+
+                                                {/* Attributes and category for mobile */}
+                                                <div className="flex items-center gap-1 mt-1 flex-wrap">
+                                                    {product.attributes &&
+                                                        product.attributes.map(
+                                                            (attr) => (
+                                                                <Tag
+                                                                    key={
+                                                                        attr._id
+                                                                    }
+                                                                    className="m-0 text-xs py-0"
+                                                                    color="blue"
+                                                                >
+                                                                    {
+                                                                        attr
+                                                                            .value[0]
+                                                                    }
+                                                                </Tag>
+                                                            )
+                                                        )}
+                                                    {product.category && (
+                                                        <span className="text-xs text-gray-500">
+                                                            {
+                                                                product.category
+                                                                    .name
+                                                            }
                                                         </span>
                                                     )}
                                                 </div>
-                                                <button className="mt-auto px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors">
-                                                    Add to Cart
-                                                </button>
+
+                                                {product.stock > 0 ? (
+                                                    <>
+                                                        <div className="flex items-center mt-1">
+                                                            <p className="font-bold text-lg">
+                                                                $
+                                                                {product.specialPrice ||
+                                                                    product.price}
+                                                            </p>
+                                                            {product.mrp &&
+                                                                product.specialPrice &&
+                                                                product.mrp >
+                                                                    product.specialPrice && (
+                                                                    <span className="text-sm text-gray-500 line-through ml-2">
+                                                                        $
+                                                                        {
+                                                                            product.mrp
+                                                                        }
+                                                                    </span>
+                                                                )}
+                                                        </div>
+                                                        <button className="mt-auto px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors">
+                                                            Add to Cart
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <div className="mt-auto">
+                                                        <p className="text-gray-500 text-sm font-medium">
+                                                            Currently
+                                                            Unavailable
+                                                        </p>
+                                                        <button className="mt-1 px-3 py-1 bg-gray-300 text-gray-700 text-sm rounded-md cursor-not-allowed">
+                                                            Out of Stock
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

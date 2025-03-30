@@ -23,11 +23,11 @@ const ProductDetail = ({ product }) => {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
-                <div className="md:flex">
+            <div className="bg-white rounded-xl overflow-hidden">
+                <div className="md:flex relative">
                     {/* Product Images Section */}
                     <div className="md:w-1/2 p-4">
-                        <div className="relative">
+                        <div className="">
                             {(product.isJustLaunched ||
                                 product.isTrending ||
                                 product.isBestSeller) && (
@@ -53,10 +53,11 @@ const ProductDetail = ({ product }) => {
                             {/* Main Product Image Slider */}
                             <Swiper
                                 spaceBetween={10}
-                                navigation={true}
-                                pagination={{
-                                    type: "fraction",
+                                navigation={{
+                                    nextEl: ".next-button",
+                                    prevEl: ".prev-button",
                                 }}
+                                pagination={{ type: "fraction" }}
                                 thumbs={{
                                     swiper:
                                         thumbsSwiper && !thumbsSwiper.destroyed
@@ -64,7 +65,7 @@ const ProductDetail = ({ product }) => {
                                             : null,
                                 }}
                                 modules={[Navigation, Thumbs, Pagination]}
-                                className="rounded-lg mb-3"
+                                className="rounded-lg mb-3 relative"
                             >
                                 {product.images.map((image, index) => (
                                     <SwiperSlide key={index}>
@@ -120,23 +121,43 @@ const ProductDetail = ({ product }) => {
 
                         <div className="flex items-center mb-4">
                             <div className="flex items-center">
-                                <div className="bg-green-50 text-green-700 px-2 py-1 rounded flex items-center text-sm">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-4 w-4 mr-1"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M5 13l4 4L19 7"
-                                        />
-                                    </svg>
-                                    <span>In Stock ({product.stock})</span>
-                                </div>
+                                {product.stock > 0 ? (
+                                    <div className="bg-green-50 text-green-700 px-2 py-1 rounded flex items-center text-sm">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="h-4 w-4 mr-1"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M5 13l4 4L19 7"
+                                            />
+                                        </svg>
+                                        <span>In Stock ({product.stock})</span>
+                                    </div>
+                                ) : (
+                                    <div className="bg-red-50 text-red-700 px-2 py-1 rounded flex items-center text-sm">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="h-4 w-4 mr-1"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M6 18L18 6M6 6l12 12"
+                                            />
+                                        </svg>
+                                        <span>Out of Stock</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -257,14 +278,16 @@ const ProductDetail = ({ product }) => {
                             </div>
                         </div>
 
-                        <div className="mt-6 space-y-3">
-                            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md text-sm font-medium transition-colors">
-                                Add to Cart
-                            </button>
-                            <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-3 px-4 rounded-md text-sm font-medium transition-colors">
-                                Buy Now
-                            </button>
-                        </div>
+                        {product.stock > 0 && (
+                            <div className="mt-6 space-y-3">
+                                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md text-sm font-medium transition-colors">
+                                    Add to Cart
+                                </button>
+                                <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-3 px-4 rounded-md text-sm font-medium transition-colors">
+                                    Buy Now
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -26,6 +26,8 @@ const Header = () => {
     }, [dispatch]);
 
     const handleCategoryClick = (categoryId) => {
+        // Reset price range to default when a category is selected
+        setPriceRange([0, 1000]);
         dispatch(fetchProducts({ category: categoryId }));
     };
 
@@ -70,6 +72,21 @@ const Header = () => {
         </div>
     );
 
+    const userMenu = (
+        <div className="p-4 w-48 bg-white shadow-md rounded-md">
+            <Link href="/dashboard">
+                <div className="cursor-pointer flex items-center py-2 hover:bg-gray-100 rounded-md transition px-3">
+                    <span className="text-gray-700">Dashboard</span>
+                </div>
+            </Link>
+            <Link href="/profile">
+                <div className="cursor-pointer flex items-center py-2 hover:bg-gray-100 rounded-md transition px-3">
+                    <span className="text-gray-700">Profile</span>
+                </div>
+            </Link>
+        </div>
+    );
+
     const priceMenu = (
         <div className="p-4 w-64 bg-white shadow-md rounded-md">
             <p className="text-gray-700 font-medium mb-2">Select Price Range</p>
@@ -78,7 +95,7 @@ const Header = () => {
                 min={0}
                 max={5000}
                 step={50}
-                defaultValue={priceRange}
+                value={priceRange}
                 onChange={handlePriceChange}
                 onChangeComplete={applyPriceFilter}
             />
@@ -103,7 +120,7 @@ const Header = () => {
                     />
                 </div>
                 <div className="flex items-center space-x-4">
-                    <Popover content={categoryMenu} trigger="hover">
+                    <Popover content={userMenu} trigger="hover">
                         <div className="cursor-pointer flex items-center space-x-1">
                             <UserOutlined className="text-xl" />
                             <span className="hidden md:block">Sign In</span>
